@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://signalqr.onrender.com/sitemap.xml
+Host: https://signalqr.onrender.com
