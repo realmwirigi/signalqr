@@ -695,11 +695,37 @@ function App() {
     setScanError('');
     setScanResult('');
     setSafetyMessage('');
+
     const imageUrl = URL.createObjectURL(file);
     try {
       const { BrowserMultiFormatReader } = await import('@zxing/browser');
       reader.current ??= new BrowserMultiFormatReader();
-      const result = await reader.current.decodeFromImageUrl(imageUrl);
+
+      const image = await new Promise((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => resolve(element);
+        element.onerror = () => reject(new Error('Image load failed.'));
+        element.src = imageUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const maxDimension = 2000;
+      const scale = Math.min(
+        2,
+        maxDimension / Math.max(image.naturalWidth, image.naturalHeight),
+      );
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      if (!context) {
+        throw new Error('Canvas context unavailable.');
+      }
+
+      context.filter = 'contrast(1.15) saturate(1.1)';
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      const result = await reader.current.decodeFromCanvas(canvas);
       setScanResult(result.getText());
     } catch {
       setScanError(
