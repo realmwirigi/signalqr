@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "vite build",
     "predeploy": "vite build --mode gh-pages && cp dist/index.html dist/404.html",
     "deploy": "gh-pages -d dist",
